@@ -42,3 +42,5 @@ next-env.d.ts
 
 # cloned skills repos
 /ponytail/
+
+.vercel
