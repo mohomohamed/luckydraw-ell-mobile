@@ -14,16 +14,11 @@ import {
   RotateCcw,
   Sparkles,
   ShieldCheck,
-  Disc,
-  Sliders,
   Copy,
   Check,
 } from "lucide-react";
 
-type DrawMode = "wheel" | "ticker";
-
 export default function Home() {
-  const [mode, setMode] = useState<DrawMode>("wheel");
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasDrawn, setHasDrawn] = useState(false);
   const [winner, setWinner] = useState<WinnerResult | null>(null);
@@ -65,7 +60,7 @@ export default function Home() {
     const targetIndex = cryptoArray[0] % PARTICIPANTS.length;
     const chosenNumber = PARTICIPANTS[targetIndex];
 
-    const DURATION = 5200; // 5.2 seconds as per Apple SRS specification
+    const DURATION = 5200; // 5.2 seconds deceleration curve
     const startTime = performance.now();
     let lastTick = 0;
     const initialRot = wheelRotation;
@@ -79,7 +74,7 @@ export default function Home() {
       const easeOut = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
       const currentInterval = 30 + Math.pow(progress, 3) * 450;
 
-      // Rotate wheel
+      // Rotate titanium wheel smoothly
       setWheelRotation(initialRot + totalWheelSpins * easeOut);
 
       if (currentTime - lastTick >= currentInterval && progress < 1) {
@@ -117,7 +112,7 @@ export default function Home() {
         };
         setWinner(result);
 
-        // Sound chime and particles
+        // Sound chime and celebratory particles
         soundEngine.playCelebrationChime();
         setConfettiActive(true);
         setTimeout(() => setConfettiActive(false), 6000);
@@ -195,7 +190,7 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* 2. Single Hero Header Arena (Featuring Apple iPhone 18 Pro Imagery) */}
+      {/* 2. Single Hero Header Arena (Featuring Apple iPhone 18 Pro Imagery & Orbital Wheel Only) */}
       <main className="flex-1 flex flex-col items-center justify-center px-4 py-4 sm:py-6 relative z-10 max-w-6xl mx-auto w-full">
         {/* Ambient Titanium Glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[680px] h-[680px] bg-[radial-gradient(circle,rgba(229,193,88,0.07)_0%,rgba(156,149,141,0.06)_40%,transparent_70%)] pointer-events-none blur-3xl" />
@@ -219,45 +214,18 @@ export default function Home() {
           iPhone 18 Pro
         </h1>
 
-        <h2 className="text-lg sm:text-2xl md:text-3xl font-semibold tracking-tight text-gold-gradient mb-3 text-center">
+        <h2 className="text-lg sm:text-2xl md:text-3xl font-semibold tracking-tight text-gold-gradient mb-5 text-center">
           Launch Day Lucky Draw
         </h2>
 
-        {/* Mode Switcher */}
-        <div className="inline-flex p-1 rounded-full bg-white/[0.05] border border-white/10 backdrop-blur-md mb-4">
-          <button
-            onClick={() => setMode("wheel")}
-            className={`flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-medium transition-all cursor-pointer ${
-              mode === "wheel"
-                ? "bg-white text-black shadow-sm"
-                : "text-[#86868b] hover:text-white"
-            }`}
-          >
-            <Disc className="w-3.5 h-3.5" />
-            <span>Titanium Orbital Wheel</span>
-          </button>
-
-          <button
-            onClick={() => setMode("ticker")}
-            className={`flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-medium transition-all cursor-pointer ${
-              mode === "ticker"
-                ? "bg-white text-black shadow-sm"
-                : "text-[#86868b] hover:text-white"
-            }`}
-          >
-            <Sliders className="w-3.5 h-3.5" />
-            <span>Optical Slot Ticker</span>
-          </button>
-        </div>
-
-        {/* Hero Interactive Stage (Dual Layout: Official Phone Photo + Lucky Draw Wheel) */}
+        {/* Hero Interactive Stage (Dual Layout: Official Phone Render + Titanium Orbital Wheel) */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-5 w-full max-w-4xl items-center">
           {/* Left: Official Apple iPhone 18 Pro Device Showcase */}
           <div className="hidden md:flex md:col-span-5 flex-col items-center justify-center bg-[#0d0d10]/80 backdrop-blur-[35px] border border-white/[0.12] rounded-[36px] p-6 relative shadow-2xl overflow-hidden group">
             {/* Subtle glow behind phone */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[#e5c158]/10 rounded-full blur-2xl" />
 
-            <div className="relative w-full max-w-[240px] h-[260px] flex items-center justify-center animate-float">
+            <div className="relative w-full max-w-[240px] h-[270px] flex items-center justify-center animate-float">
               <Image
                 src="/images/iphone/iphone-18-pro-hero.png"
                 alt="iPhone 18 Pro - Official Apple Marketing Render"
@@ -282,96 +250,73 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right: The Centerpiece Selection Mechanism */}
+          {/* Right: The Centerpiece Titanium Orbital Wheel */}
           <div className="col-span-12 md:col-span-7 bg-[#121216]/85 backdrop-blur-[35px] border border-white/[0.14] rounded-[36px] p-5 sm:p-7 shadow-[0_30px_90px_-20px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.2)]">
-            {/* Visual Mechanism */}
-            {mode === "wheel" ? (
-              <div className="relative w-[230px] sm:w-[260px] aspect-square mx-auto mb-4 flex items-center justify-center">
-                {/* Outer Titanium Bezel with 36 ticks */}
-                <div
-                  className="absolute inset-0 rounded-full border-[5px] border-[#2c2b30] shadow-[inset_0_0_20px_rgba(0,0,0,0.9),0_0_40px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.1)] transition-transform ease-out"
-                  style={{
-                    transform: `rotate(${wheelRotation}deg)`,
-                    transitionDuration: isDrawing ? "0s" : "0.5s",
-                  }}
-                >
-                  {Array.from({ length: 36 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="absolute top-0 left-1/2 -translate-x-1/2 w-[2px] h-2.5 origin-bottom"
-                      style={{
-                        transformOrigin: "50% 115px",
-                        transform: `rotate(${i * 10}deg)`,
-                        backgroundColor:
-                          i % 3 === 0 ? "rgba(229,193,88,0.7)" : "rgba(255,255,255,0.15)",
-                      }}
-                    />
-                  ))}
-                </div>
-
-                {/* Glowing Radar Sweep Ring */}
-                <div className="absolute inset-2.5 rounded-full border border-white/[0.08] pointer-events-none">
+            {/* Titanium Orbital Wheel */}
+            <div className="relative w-[240px] sm:w-[280px] aspect-square mx-auto mb-5 flex items-center justify-center">
+              {/* Outer Titanium Bezel with 36 ticks */}
+              <div
+                className="absolute inset-0 rounded-full border-[6px] border-[#2c2b30] shadow-[inset_0_0_20px_rgba(0,0,0,0.9),0_0_40px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.1)] transition-transform ease-out"
+                style={{
+                  transform: `rotate(${wheelRotation}deg)`,
+                  transitionDuration: isDrawing ? "0s" : "0.5s",
+                }}
+              >
+                {Array.from({ length: 36 }).map((_, i) => (
                   <div
-                    className={`absolute inset-0 rounded-full ${
-                      isDrawing ? "animate-radar opacity-80" : "opacity-25"
-                    }`}
+                    key={i}
+                    className="absolute top-0 left-1/2 -translate-x-1/2 w-[2px] h-2.5 origin-bottom"
                     style={{
-                      background:
-                        "conic-gradient(from 0deg, transparent 0deg, transparent 270deg, rgba(229,193,88,0.25) 360deg)",
+                      transformOrigin: "50% 125px",
+                      transform: `rotate(${i * 10}deg)`,
+                      backgroundColor:
+                        i % 3 === 0 ? "rgba(229,193,88,0.7)" : "rgba(255,255,255,0.15)",
                     }}
                   />
+                ))}
+              </div>
+
+              {/* Glowing Radar Sweep Ring */}
+              <div className="absolute inset-2.5 rounded-full border border-white/[0.08] pointer-events-none">
+                <div
+                  className={`absolute inset-0 rounded-full ${
+                    isDrawing ? "animate-radar opacity-80" : "opacity-25"
+                  }`}
+                  style={{
+                    background:
+                      "conic-gradient(from 0deg, transparent 0deg, transparent 270deg, rgba(229,193,88,0.25) 360deg)",
+                  }}
+                />
+              </div>
+
+              {/* Center Aperture with Scrambling Digits */}
+              <div className="relative z-10 w-[160px] sm:w-[190px] h-[160px] sm:h-[190px] rounded-full bg-[#050508]/95 backdrop-blur-xl border border-white/[0.18] flex flex-col items-center justify-center p-3 shadow-[inset_0_0_30px_rgba(0,0,0,0.9)]">
+                <span className="text-[9px] tracking-[0.14em] uppercase text-[#86868b] font-semibold mb-0.5">
+                  Maldives +960
+                </span>
+
+                <div
+                  className={`font-mono text-2xl sm:text-3xl font-bold tracking-wider tabular-nums transition-all duration-100 ${blurClass} ${
+                    hasDrawn
+                      ? "text-gold-gradient scale-110 drop-shadow-[0_0_20px_rgba(229,193,88,0.6)] animate-winner-spring"
+                      : "text-white"
+                  }`}
+                >
+                  {currentDisplay}
                 </div>
 
-                {/* Center Aperture */}
-                <div className="relative z-10 w-[150px] sm:w-[175px] h-[150px] sm:h-[175px] rounded-full bg-[#050508]/95 backdrop-blur-xl border border-white/[0.18] flex flex-col items-center justify-center p-3 shadow-[inset_0_0_30px_rgba(0,0,0,0.9)]">
-                  <span className="text-[9px] tracking-[0.14em] uppercase text-[#86868b] font-semibold mb-0.5">
-                    Maldives +960
-                  </span>
-
-                  <div
-                    className={`font-mono text-2xl sm:text-3xl font-bold tracking-wider tabular-nums transition-all duration-100 ${blurClass} ${
-                      hasDrawn
-                        ? "text-gold-gradient scale-110 drop-shadow-[0_0_20px_rgba(229,193,88,0.6)] animate-winner-spring"
-                        : "text-white"
-                    }`}
-                  >
-                    {currentDisplay}
-                  </div>
-
-                  <div className="mt-1.5 text-[9px] text-[#6e6e73] font-mono">
-                    {isDrawing ? "Selecting..." : hasDrawn ? "Winner Selected" : "Ready"}
-                  </div>
+                <div className="mt-1.5 text-[9px] text-[#6e6e73] font-mono">
+                  {isDrawing ? "Selecting..." : hasDrawn ? "Winner Selected" : "Ready"}
                 </div>
               </div>
-            ) : (
-              /* Optical Slot Ticker */
-              <div className="relative h-24 sm:h-28 max-w-[360px] mx-auto mb-4 rounded-2xl bg-[#040406] border border-white/[0.14] shadow-[inset_0_10px_30px_rgba(0,0,0,0.95)] flex items-center justify-center overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-[#040406] to-transparent z-10 pointer-events-none" />
-                <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#040406] to-transparent z-10 pointer-events-none" />
-
-                <div className="flex items-baseline justify-center gap-2.5 z-0">
-                  <span className="font-mono text-base sm:text-xl font-normal text-[#6e6e73]">
-                    +960
-                  </span>
-                  <span
-                    className={`font-mono text-3xl sm:text-4xl font-bold tracking-widest tabular-nums transition-all duration-100 ${blurClass} ${
-                      hasDrawn
-                        ? "text-gold-gradient scale-105 drop-shadow-[0_0_30px_rgba(229,193,88,0.7)] animate-winner-spring"
-                        : "text-white"
-                    }`}
-                  >
-                    {currentDisplay}
-                  </span>
-                </div>
-              </div>
-            )}
+            </div>
 
             {/* Trigger Button & Status Controls */}
             {!hasDrawn ? (
               <button
                 onClick={startDraw}
                 disabled={isDrawing}
-                className="w-full bg-white hover:bg-[#f5f5f7] active:scale-[0.98] disabled:bg-[#2c2c2e] disabled:text-[#636366] disabled:cursor-not-allowed text-black font-semibold text-sm sm:text-base py-3 rounded-full flex items-center justify-center gap-2 cursor-pointer shadow-[0_4px_30px_rgba(255,255,255,0.2)] hover:shadow-[0_8px_40px_rgba(255,255,255,0.35)] transition-all"
+                className="w-full bg-white hover:bg-[#f5f5f7] active:scale-[0.98] disabled:bg-[#2c2c2e] disabled:text-[#636366] disabled:cursor-not-allowed text-black font-semibold text-sm sm:text-base py-3.5 rounded-full flex items-center justify-center gap-2 cursor-pointer shadow-[0_4px_30px_rgba(255,255,255,0.2)] hover:shadow-[0_8px_40px_rgba(255,255,255,0.35)] transition-all"
               >
                 <Play className="w-4 h-4 fill-current" />
                 <span>{isDrawing ? "Selecting Lucky Winner..." : "Reveal Winner"}</span>
