@@ -146,6 +146,28 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
+/* V2 Flash & Confetti */
+@keyframes v2Flash {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.animate-v2-flash {
+  animation: v2Flash 0.65s ease forwards;
+}
+
+@keyframes v2ConfettiFall {
+  to {
+    transform: translate3d(var(--x, 0), 110vh, 0) rotate(var(--r, 0deg));
+    opacity: 0;
+  }
+}
+
+.animate-v2-confetti {
+  animation: v2ConfettiFall 1.8s ease-out forwards;
+}
+
 /* Apple Design Accessibility: prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   *,

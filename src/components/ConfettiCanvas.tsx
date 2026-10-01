@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from "react";
 
 interface ConfettiCanvasProps {
   active: boolean;
+  theme?: "gold" | "citron";
 }
 
 class Flake {
@@ -15,13 +16,15 @@ class Flake {
   decay: number;
   gravity: number;
   friction: number;
-  isGold: boolean;
+  isPrimary: boolean;
+  theme: "gold" | "citron";
   rotation: number;
   rotSpeed: number;
 
-  constructor(x: number, y: number) {
+  constructor(x: number, y: number, theme: "gold" | "citron" = "gold") {
     this.x = x;
     this.y = y;
+    this.theme = theme;
     const angle = Math.random() * Math.PI * 2;
     const speed = Math.random() * 9 + 4;
     this.vx = Math.cos(angle) * speed;
@@ -31,7 +34,7 @@ class Flake {
     this.decay = Math.random() * 0.007 + 0.005;
     this.gravity = 0.14;
     this.friction = 0.985;
-    this.isGold = Math.random() > 0.4;
+    this.isPrimary = Math.random() > 0.35;
     this.rotation = Math.random() * Math.PI;
     this.rotSpeed = (Math.random() - 0.5) * 0.14;
   }
@@ -52,12 +55,22 @@ class Flake {
     ctx.rotate(this.rotation);
     ctx.globalAlpha = Math.max(0, this.life);
 
-    if (this.isGold) {
-      ctx.fillStyle = "#e5c158";
-      ctx.shadowColor = "rgba(229, 193, 88, 0.6)";
+    if (this.theme === "citron") {
+      if (this.isPrimary) {
+        ctx.fillStyle = "#f1ff54";
+        ctx.shadowColor = "rgba(241, 255, 84, 0.75)";
+      } else {
+        ctx.fillStyle = "#ffffff";
+        ctx.shadowColor = "rgba(255, 255, 255, 0.4)";
+      }
     } else {
-      ctx.fillStyle = "#e2e4e1";
-      ctx.shadowColor = "rgba(255, 255, 255, 0.4)";
+      if (this.isPrimary) {
+        ctx.fillStyle = "#e5c158";
+        ctx.shadowColor = "rgba(229, 193, 88, 0.6)";
+      } else {
+        ctx.fillStyle = "#e2e4e1";
+        ctx.shadowColor = "rgba(255, 255, 255, 0.4)";
+      }
     }
     ctx.shadowBlur = 8;
     ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size * 1.5);
@@ -65,7 +78,7 @@ class Flake {
   }
 }
 
-export default function ConfettiCanvas({ active }: ConfettiCanvasProps) {
+export default function ConfettiCanvas({ active, theme = "gold" }: ConfettiCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -87,7 +100,8 @@ export default function ConfettiCanvas({ active }: ConfettiCanvasProps) {
       particles.push(
         new Flake(
           centerX + (Math.random() - 0.5) * 90,
-          centerY + (Math.random() - 0.5) * 70
+          centerY + (Math.random() - 0.5) * 70,
+          theme
         )
       );
     }

@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { PARTICIPANTS, WinnerResult } from "@/data/participants";
 import { soundEngine } from "@/lib/audio";
 import ConfettiCanvas from "@/components/ConfettiCanvas";
@@ -163,7 +164,20 @@ export default function Home() {
           </span>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Version Switcher */}
+          <div className="hidden sm:inline-flex items-center bg-white/[0.06] border border-white/[0.08] p-0.5 rounded-full text-[11px]">
+            <span className="px-2.5 py-0.5 rounded-full bg-white/15 text-white font-medium">
+              v1: Orbital
+            </span>
+            <Link
+              href="/v2"
+              className="px-2.5 py-0.5 rounded-full text-[#86868b] hover:text-[#f1ff54] transition-colors"
+            >
+              v2: Stage
+            </Link>
+          </div>
+
           <button
             onClick={() => setIsDrawerOpen(true)}
             className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.08] hover:bg-white/[0.14] text-xs font-normal text-[#d6d6d6] transition-colors cursor-pointer border border-white/10"
