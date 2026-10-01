@@ -1,25 +1,10 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { PARTICIPANTS, WinnerResult } from "@/data/participants";
+import { PARTICIPANTS } from "@/data/participants";
 import { soundEngine } from "@/lib/audio";
-import ConfettiCanvas from "@/components/ConfettiCanvas";
-import WinnerModal from "@/components/WinnerModal";
 import RegistrantDrawer from "@/components/RegistrantDrawer";
-import {
-  Volume2,
-  VolumeX,
-  Users,
-  Play,
-  RotateCcw,
-  Sparkles,
-  ShieldCheck,
-  Copy,
-  Check,
-  ExternalLink,
-  ChevronRight,
-} from "lucide-react";
+import { Volume2, VolumeX } from "lucide-react";
 
 interface ConfettiPiece {
   id: number;
@@ -31,41 +16,37 @@ interface ConfettiPiece {
 }
 
 export default function LuckyDrawV2() {
-  const [isDrawing, setIsDrawing] = useState(false);
+  const [drawing, setDrawing] = useState(false);
   const [hasDrawn, setHasDrawn] = useState(false);
-  const [winner, setWinner] = useState<WinnerResult | null>(null);
   const [displayName, setDisplayName] = useState("Ready to Draw");
-  const [displaySubtitle, setDisplaySubtitle] = useState("");
+  const [participantText, setParticipantText] = useState("");
   const [statusText, setStatusText] = useState("Press start to select one random winner.");
-  const [shuffling, setShuffling] = useState(false);
-  const [isWinnerActive, setIsWinnerActive] = useState(false);
+  const [isShuffling, setIsShuffling] = useState(false);
+  const [isWinner, setIsWinner] = useState(false);
   const [flashActive, setFlashActive] = useState(false);
-  const [confettiActive, setConfettiActive] = useState(false);
-  const [cssConfetti, setCssConfetti] = useState<ConfettiPiece[]>([]);
-  const [soundActive, setSoundActive] = useState(true);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [confettiPieces, setConfettiPieces] = useState<ConfettiPiece[]>([]);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [winningNumber, setWinningNumber] = useState<string | null>(null);
 
   const toggleSound = () => {
-    const next = !soundActive;
-    setSoundActive(next);
+    const next = !soundEnabled;
+    setSoundEnabled(next);
     soundEngine.setEnabled(next);
   };
 
   const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  const formatPhone = (num: string) => {
+  const formatNumber = (num: string) => {
     if (num.length === 7) {
-      return `+960 ${num.slice(0, 3)}-${num.slice(3)}`;
+      return `+960 ${num.slice(0, 3)} ${num.slice(3)}`;
     }
     return `+960 ${num}`;
   };
 
-  const triggerCssConfetti = () => {
+  const triggerConfetti = () => {
     const pieces: ConfettiPiece[] = [];
-    const count = 48;
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < 42; i++) {
       let bg = "#f1ff54";
       if (i % 3 === 1) bg = "#ffffff";
       if (i % 3 === 2) bg = "#8c8c92";
@@ -73,121 +54,104 @@ export default function LuckyDrawV2() {
       pieces.push({
         id: i,
         left: `${Math.random() * 100}%`,
-        x: `${(Math.random() - 0.5) * 280}px`,
+        x: `${(Math.random() - 0.5) * 260}px`,
         r: `${Math.random() * 900 - 450}deg`,
         delay: `${Math.random() * 0.25}s`,
         bg,
       });
     }
-    setCssConfetti(pieces);
+    setConfettiPieces(pieces);
     setTimeout(() => {
-      setCssConfetti([]);
-    }, 2400);
+      setConfettiPieces([]);
+    }, 2200);
   };
 
-  const startDraw = async () => {
-    if (isDrawing) return;
+  const drawWinner = async () => {
+    if (drawing) return;
 
-    setIsDrawing(true);
-    setShuffling(true);
-    setIsWinnerActive(false);
-    setStatusText("Selecting randomly with cryptographic entropy...");
-    setDisplaySubtitle("");
+    setDrawing(true);
+    setIsWinner(false);
+    setIsShuffling(true);
+    setStatusText("Selecting randomly…");
+    setParticipantText("");
 
-    // Cryptographic random pick from verified participants
+    // Crypto random pick
     const cryptoArray = new Uint32Array(1);
     window.crypto.getRandomValues(cryptoArray);
-    const targetIndex = cryptoArray[0] % PARTICIPANTS.length;
-    const targetNumber = PARTICIPANTS[targetIndex];
+    const targetIdx = cryptoArray[0] % PARTICIPANTS.length;
+    const targetNum = PARTICIPANTS[targetIdx];
 
-    // Fast shuffle phase (28 iterations @ 45ms)
+    // Fast shuffle (28 ticks @ 45ms)
     for (let i = 0; i < 28; i++) {
       const randIdx = Math.floor(Math.random() * PARTICIPANTS.length);
-      const randNum = PARTICIPANTS[randIdx];
-      setDisplayName(formatPhone(randNum));
-      setDisplaySubtitle(`Participant #${randIdx + 1}`);
+      setDisplayName(formatNumber(PARTICIPANTS[randIdx]));
       soundEngine.playTick(1.0);
       await wait(45);
     }
 
-    // Controlled slowdown phase (progressive exponential deceleration)
+    // Controlled slowdown curve matching mockup
     const delays = [65, 75, 90, 110, 135, 165, 205, 255, 320, 420];
     for (let i = 0; i < delays.length; i++) {
-      const delay = delays[i];
       const randIdx = Math.floor(Math.random() * PARTICIPANTS.length);
-      const randNum = PARTICIPANTS[randIdx];
-      setDisplayName(formatPhone(randNum));
-      setDisplaySubtitle(`Participant #${randIdx + 1}`);
-      soundEngine.playTick(0.85 + (i / delays.length) * 0.5);
-      await wait(delay);
+      setDisplayName(formatNumber(PARTICIPANTS[randIdx]));
+      soundEngine.playTick(0.85 + (i / delays.length) * 0.45);
+      await wait(delays[i]);
     }
 
     await wait(180);
 
-    // Winner Landing
-    const winResult: WinnerResult = {
-      number: targetNumber,
-      index: targetIndex + 1,
-      timestamp: new Date().toLocaleTimeString("en-US", {
-        timeZone: "Indian/Maldives",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      }),
-    };
-
-    setShuffling(false);
-    setWinner(winResult);
-    setDisplayName(formatPhone(targetNumber));
-    setDisplaySubtitle(`Participant #${targetIndex + 1} · Maldives +960 · Verified Ticket`);
-    setIsWinnerActive(true);
+    // Final winner announcement
+    setIsShuffling(false);
+    setWinningNumber(targetNum);
+    setDisplayName(formatNumber(targetNum));
+    setParticipantText(`Participant #${String(targetIdx + 1).padStart(2, "0")}`);
+    setIsWinner(true);
     setHasDrawn(true);
-    setStatusText("Winner selected • Cryptographically verified");
+    setStatusText("Winner selected · Tap number to copy");
 
-    // Flash & Celebration Chime
+    // Flash & celebration
     setFlashActive(true);
-    setTimeout(() => setFlashActive(false), 700);
+    setTimeout(() => setFlashActive(false), 650);
 
     soundEngine.playCelebrationChime();
-    setConfettiActive(true);
-    triggerCssConfetti();
+    triggerConfetti();
 
-    setIsDrawing(false);
+    setDrawing(false);
   };
 
-  const copyWinningNumber = () => {
-    if (!winner) return;
-    navigator.clipboard.writeText(`+960${winner.number}`).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+  const copyNumber = () => {
+    if (!winningNumber) return;
+    navigator.clipboard.writeText(`+960${winningNumber}`).then(() => {
+      setStatusText(`Copied +960${winningNumber} to clipboard`);
+      setTimeout(() => {
+        setStatusText("Winner selected · Tap number to copy");
+      }, 2500);
     });
   };
 
   return (
-    <div className="relative min-h-screen bg-[#0b0b0c] text-[#f5f5f3] flex flex-col justify-between overflow-x-hidden select-none font-sans">
-      {/* Ambient background glows */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(circle at 50% 40%, rgba(241,255,84,0.08), transparent 28%), radial-gradient(circle at 50% 50%, rgba(255,255,255,0.025), transparent 50%)",
-          }}
-        />
-      </div>
+    <div className="min-h-screen bg-[#0b0b0c] text-[#f5f5f3] flex flex-col justify-between items-center p-4 sm:p-7 relative select-none font-sans overflow-x-hidden">
+      {/* Background ambient lighting */}
+      <div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(circle at 50% 40%, rgba(241,255,84,.08), transparent 28%), radial-gradient(circle at 50% 50%, rgba(255,255,255,.025), transparent 50%)",
+        }}
+      />
 
       {/* Screen flash on winner */}
       {flashActive && (
         <div
           className="fixed inset-0 pointer-events-none z-50 animate-v2-flash"
-          style={{ background: "rgba(241,255,84,0.14)" }}
+          style={{ background: "rgba(241,255,84,.12)" }}
         />
       )}
 
-      {/* CSS Confetti Ribbons */}
-      {cssConfetti.length > 0 && (
+      {/* 42-piece confetti strips matching mockup */}
+      {confettiPieces.length > 0 && (
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-40">
-          {cssConfetti.map((piece) => (
+          {confettiPieces.map((piece) => (
             <span
               key={piece.id}
               className="absolute -top-5 w-2 h-4 rounded-[2px] animate-v2-confetti"
@@ -205,89 +169,65 @@ export default function LuckyDrawV2() {
         </div>
       )}
 
-      {/* Canvas Confetti */}
-      <ConfettiCanvas active={confettiActive} theme="citron" />
-
-      {/* Top Bar Navigation */}
-      <header className="relative z-30 w-full max-w-[1100px] mx-auto pt-6 sm:pt-8 px-4 sm:px-6">
-        <div className="flex items-center justify-between text-xs sm:text-[13px] text-[#8c8c92]">
-          {/* Brand */}
-          <div className="flex items-center gap-2.5">
+      {/* Main Container */}
+      <div className="w-full max-w-[1100px] relative z-10 flex flex-col justify-between min-h-[calc(100vh-3.5rem)]">
+        {/* Topbar */}
+        <header className="flex items-center justify-between text-[13px] text-[#8c8c92] mb-5">
+          <div className="flex items-center gap-2.5 font-[750] text-[#f5f5f3] tracking-[-0.02em]">
             <span
               className="w-2.5 h-2.5 rounded-full"
               style={{
                 backgroundColor: "#f1ff54",
-                boxShadow: "0 0 20px rgba(241,255,84,0.55)",
+                boxShadow: "0 0 20px rgba(241,255,84,.45)",
               }}
             />
-            <span className="font-bold text-[#f5f5f3] tracking-tight text-sm">
-              Lucky Draw
-            </span>
-            <span className="text-[11px] px-2 py-0.5 rounded-full bg-white/[0.08] text-[#f1ff54] font-semibold border border-[#f1ff54]/30">
-              v2 Stage
-            </span>
+            <span>Lucky Draw</span>
           </div>
 
-          {/* Right Controls & Version Switcher */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Version Switcher */}
-            <div className="hidden sm:inline-flex items-center bg-white/[0.05] border border-white/[0.08] p-0.5 rounded-full text-[11px]">
-              <Link
-                href="/"
-                className="px-2.5 py-1 rounded-full text-[#8c8c92] hover:text-white transition-colors"
-              >
-                v1: Orbital
-              </Link>
-              <span className="px-2.5 py-1 rounded-full bg-white/10 text-white font-medium">
-                v2: Stage
-              </span>
-            </div>
-
-            {/* Registrant Drawer Button */}
+          <div className="flex items-center gap-3 sm:gap-4 text-xs">
             <button
-              onClick={() => setIsDrawerOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-xs text-[#d6d6d6] transition-colors cursor-pointer border border-white/10"
+              onClick={() => setDrawerOpen(true)}
+              className="hover:text-[#f5f5f3] transition-colors cursor-pointer"
             >
-              <Users className="w-3.5 h-3.5 text-[#8c8c92]" />
-              <span>86 Registrants</span>
+              86 Registrants
             </button>
-
-            {/* Sound Toggle */}
+            <span className="text-white/10">•</span>
             <button
               onClick={toggleSound}
-              title={soundActive ? "Mute Haptics" : "Unmute Haptics"}
-              className={`w-8 h-8 rounded-full flex items-center justify-center border transition-all cursor-pointer ${
-                soundActive
-                  ? "bg-[#f1ff54]/15 border-[#f1ff54]/40 text-[#f1ff54]"
-                  : "bg-white/[0.05] border-white/10 text-[#8c8c92]"
-              }`}
+              title={soundEnabled ? "Mute sound" : "Unmute sound"}
+              className="hover:text-[#f5f5f3] transition-colors cursor-pointer flex items-center gap-1"
             >
-              {soundActive ? (
+              {soundEnabled ? (
                 <Volume2 className="w-3.5 h-3.5" />
               ) : (
                 <VolumeX className="w-3.5 h-3.5" />
               )}
             </button>
+            <span className="text-white/10">•</span>
+            <Link
+              href="/"
+              className="text-[#8c8c92] hover:text-[#f1ff54] transition-colors"
+            >
+              v1: Orbital
+            </Link>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Main App Stage */}
-      <main className="relative z-10 w-full max-w-[1100px] mx-auto px-4 sm:px-6 my-auto py-6">
+        {/* Central Stage */}
         <section
-          className="relative min-h-[62vh] sm:min-h-[68vh] md:min-h-[580px] rounded-[32px] border border-white/[0.08] p-6 sm:p-12 md:p-16 flex flex-col items-center justify-center text-center overflow-hidden"
+          className="relative min-h-[min(72vh,700px)] rounded-[32px] border border-white/[0.08] p-7 sm:p-12 md:p-16 flex items-center justify-center overflow-hidden my-auto"
           style={{
             background:
-              "linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.012))",
-            boxShadow: "0 35px 100px rgba(0,0,0,0.35)",
+              "linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,.012))",
+            boxShadow: "0 35px 100px rgba(0,0,0,.35)",
           }}
         >
-          {/* Subtle Grid Overlay with Mask */}
+          {/* 48px Grid Overlay with soft vertical mask */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
               backgroundImage:
-                "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
+                "linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px)",
               backgroundSize: "48px 48px",
               maskImage:
                 "linear-gradient(to bottom, transparent, black 20%, black 80%, transparent)",
@@ -297,146 +237,87 @@ export default function LuckyDrawV2() {
           />
 
           {/* Stage Content */}
-          <div className="relative z-10 w-full max-w-[820px] mx-auto flex flex-col items-center">
-            {/* Eyebrow & Hardware Verification */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-[11px] sm:text-xs text-[#8c8c92] uppercase tracking-[0.18em] mb-4">
-              <span className="w-2 h-2 rounded-full bg-[#34c759] shadow-[0_0_8px_#34c759]" />
-              <span>Hardware Enclave Armed • 86 Participants</span>
+          <div className="w-full max-w-[820px] text-center relative z-10">
+            {/* Eyebrow */}
+            <div className="text-xs uppercase tracking-[0.18em] text-[#8c8c92] mb-[18px]">
+              86 Participants
             </div>
 
-            {/* Prize Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-xs text-[#d6d6d6] mb-8">
-              <div className="relative w-5 h-5 flex items-center justify-center">
-                <Image
-                  src="/images/iphone/iphone-18-pro-hero.png"
-                  alt="iPhone 18 Pro Max"
-                  width={20}
-                  height={20}
-                  className="object-contain"
-                />
-              </div>
-              <span className="font-semibold text-white">Grand Prize:</span>
-              <span className="text-[#f1ff54]">iPhone 18 Pro Max • 512GB</span>
-            </div>
-
-            {/* Central Typographic Draw Display */}
-            <div className="min-h-[200px] sm:min-h-[240px] flex flex-col items-center justify-center w-full px-2 py-4">
-              <div
-                className={`text-[clamp(36px,7.5vw,86px)] font-black tracking-[-0.065em] leading-[0.95] max-w-full break-words select-all transition-all duration-200 tabular-nums ${
-                  shuffling
-                    ? "opacity-75 blur-[0.35px] scale-[0.985] text-white"
-                    : isWinnerActive
-                    ? "scale-[1.04] text-[#f1ff54]"
-                    : "text-white"
-                }`}
-                style={
-                  isWinnerActive
-                    ? {
-                        textShadow:
-                          "0 0 36px rgba(241,255,84,0.3), 0 0 70px rgba(241,255,84,0.15)",
-                      }
-                    : undefined
-                }
-              >
-                {displayName}
-              </div>
-
-              {/* Subtitle / Participant details */}
-              <div className="mt-4 text-xs sm:text-[13px] tracking-[0.08em] uppercase text-[#8c8c92] min-h-[22px] font-mono">
-                {displaySubtitle || (
-                  <span className="opacity-60">Maldives +960 • Live Hardware Selection</span>
-                )}
+            {/* Typographic Draw Display */}
+            <div className="min-h-[240px] flex items-center justify-center p-4 sm:p-7 relative">
+              <div>
+                <div
+                  onClick={isWinner ? copyNumber : undefined}
+                  className={`text-[clamp(44px,8vw,92px)] leading-[0.95] font-black tracking-[-0.065em] max-w-full break-words transition-all duration-[180ms] ${
+                    isShuffling
+                      ? "opacity-75 blur-[0.35px] scale-[0.985] text-[#f5f5f3]"
+                      : isWinner
+                      ? "scale-[1.04] text-[#f1ff54] cursor-pointer"
+                      : "text-[#f5f5f3]"
+                  }`}
+                  style={
+                    isWinner
+                      ? {
+                          textShadow: "0 0 36px rgba(241,255,84,.12)",
+                        }
+                      : undefined
+                  }
+                  title={isWinner ? "Click to copy" : undefined}
+                >
+                  {displayName}
+                </div>
+                <div className="mt-[18px] text-[13px] tracking-[0.08em] uppercase text-[#8c8c92] min-h-[18px] font-mono">
+                  {participantText}
+                </div>
               </div>
             </div>
 
             {/* Controls */}
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-sm">
+            <div className="mt-[34px] flex justify-center">
               <button
-                onClick={startDraw}
-                disabled={isDrawing}
-                className="w-full sm:w-auto min-w-[210px] px-8 py-4 rounded-full font-extrabold text-[15px] tracking-[-0.01em] transition-all duration-200 cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.985]"
+                onClick={drawWinner}
+                disabled={drawing}
+                className="border-0 min-w-[210px] rounded-full px-7 py-4 font-[850] text-[15px] tracking-[-0.01em] cursor-pointer transition-all duration-[180ms] disabled:opacity-45 disabled:cursor-not-allowed hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.985]"
                 style={{
                   backgroundColor: "#f1ff54",
                   color: "#0b0b0c",
-                  boxShadow: "0 10px 30px rgba(241,255,84,0.15)",
+                  boxShadow: "0 10px 30px rgba(241,255,84,.08)",
                 }}
               >
-                {isDrawing ? "Drawing…" : hasDrawn ? "Draw Again" : "Start Draw"}
+                {drawing ? "Drawing…" : hasDrawn ? "Draw Again" : "Start Draw"}
               </button>
-
-              {/* Extra winner action buttons */}
-              {isWinnerActive && winner && (
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={copyWinningNumber}
-                    className="p-3.5 rounded-full bg-white/[0.08] hover:bg-white/[0.14] text-white border border-white/10 transition-all cursor-pointer"
-                    title="Copy Winning Phone Number"
-                  >
-                    {copied ? (
-                      <Check className="w-4 h-4 text-[#34c759]" />
-                    ) : (
-                      <Copy className="w-4 h-4 text-[#8c8c92]" />
-                    )}
-                  </button>
-
-                  <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="px-4 py-3.5 rounded-full bg-white/[0.08] hover:bg-white/[0.14] text-xs font-semibold text-white border border-white/10 transition-all cursor-pointer"
-                  >
-                    View Details
-                  </button>
-                </div>
-              )}
             </div>
 
-            {/* Status message */}
+            {/* Status */}
             <div className="mt-4 text-xs text-[#8c8c92] min-h-[18px]">
               {statusText}
             </div>
           </div>
         </section>
-      </main>
 
-      {/* Footer */}
-      <footer className="relative z-20 w-full max-w-[1100px] mx-auto pb-6 sm:pb-8 px-4 sm:px-6">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#8c8c92] pt-4 border-t border-white/[0.06]">
+        {/* Footer */}
+        <footer className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-[18px] text-xs text-[#8c8c92]">
           <div className="inline-flex items-center gap-2">
             <span
-              className="w-[7px] h-[7px] rounded-full animate-pulse"
+              className="w-[7px] h-[7px] rounded-full"
               style={{
                 backgroundColor: "#f1ff54",
-                boxShadow: "0 0 14px rgba(241,255,84,0.6)",
+                boxShadow: "0 0 14px rgba(241,255,84,.6)",
               }}
             />
             <span>
-              <strong className="text-white font-bold">86</strong> eligible participants
+              <strong className="text-[#f5f5f3] font-bold">86</strong> eligible participants
             </span>
           </div>
-
-          <div className="flex items-center gap-4">
-            <Link
-              href="/"
-              className="hover:text-white transition-colors flex items-center gap-1"
-            >
-              Switch to v1 Orbital Wheel <ChevronRight className="w-3 h-3" />
-            </Link>
-            <span className="text-[#48484a]">•</span>
-            <span>One winner · Fair random draw · ELL Mobile</span>
-          </div>
-        </div>
-      </footer>
+          <div>One winner · fair random draw</div>
+        </footer>
+      </div>
 
       {/* Registrant Drawer */}
       <RegistrantDrawer
-        isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
-        winnerNumber={winner?.number}
-      />
-
-      {/* Official Winner Modal */}
-      <WinnerModal
-        winner={winner}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        winnerNumber={winningNumber}
       />
     </div>
   );
