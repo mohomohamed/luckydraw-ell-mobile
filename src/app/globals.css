@@ -1,0 +1,147 @@
+@import "tailwindcss";
+
+:root {
+  --r-globalnav-height: 44px;
+  --r-localnav-height: 52px;
+  --color-bg-base: #000000;
+  --color-bg-secondary: #0d0d0f;
+  --color-bg-elevated: #161617;
+  --color-bg-card: rgba(22, 22, 24, 0.75);
+  --color-bg-card-hover: rgba(30, 30, 34, 0.9);
+  
+  --color-text-primary: #f5f5f7;
+  --color-text-secondary: #86868b;
+  --color-text-tertiary: #6e6e73;
+  --color-text-link: #2997ff;
+  
+  --color-border-hairline: rgba(255, 255, 255, 0.12);
+  --color-border-subtle: rgba(255, 255, 255, 0.18);
+  --color-border-focus: rgba(255, 255, 255, 0.35);
+
+  --color-titanium-natural: #9c958d;
+  --color-titanium-desert: #c5a98e;
+  --color-titanium-white: #e2e4e1;
+  --color-titanium-black: #3b3a3e;
+
+  --color-gold-accent: #e5c158;
+  --color-apple-blue: #0071e3;
+  --color-apple-blue-hover: #0077ed;
+
+  --ease-apple: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: var(--color-bg-base);
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-bg-base);
+  color: var(--color-text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+  letter-spacing: -0.015em;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.4);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* Apple Animations */
+@keyframes applePulse {
+  from {
+    transform: scale(0.85);
+    opacity: 0.7;
+  }
+  to {
+    transform: scale(1.25);
+    opacity: 1;
+  }
+}
+
+.animate-apple-pulse {
+  animation: applePulse 0.9s infinite alternate;
+}
+
+@keyframes winnerSpring {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-winner-spring {
+  animation: winnerSpring 0.9s var(--ease-out-expo) forwards;
+}
+
+@keyframes radarSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-radar {
+  animation: radarSpin 8s linear infinite;
+}
+
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float {
+  animation: floatSlow 4s ease-in-out infinite;
+}
+
+/* Text Gradients */
+.text-titanium-gradient {
+  background: linear-gradient(180deg, #ffffff 45%, #86868b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gold-gradient {
+  background: linear-gradient(135deg, #fceec5 0%, #e5c158 50%, #a88424 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-white-metallic {
+  background: linear-gradient(135deg, #ffffff 30%, #e5c158 80%, #b88e28 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
