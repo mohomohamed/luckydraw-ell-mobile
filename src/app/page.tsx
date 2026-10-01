@@ -316,7 +316,7 @@ export default function Home() {
               <button
                 onClick={startDraw}
                 disabled={isDrawing}
-                className="w-full bg-white hover:bg-[#f5f5f7] active:scale-[0.98] disabled:bg-[#2c2c2e] disabled:text-[#636366] disabled:cursor-not-allowed text-black font-semibold text-sm sm:text-base py-3.5 rounded-full flex items-center justify-center gap-2 cursor-pointer shadow-[0_4px_30px_rgba(255,255,255,0.2)] hover:shadow-[0_8px_40px_rgba(255,255,255,0.35)] transition-all"
+                className="w-full bg-white hover:bg-[#f5f5f7] active:scale-[0.97] disabled:bg-[#2c2c2e] disabled:text-[#636366] disabled:cursor-not-allowed text-black font-semibold text-sm sm:text-base py-3.5 rounded-full flex items-center justify-center gap-2 cursor-pointer shadow-[0_4px_30px_rgba(255,255,255,0.2)] hover:shadow-[0_8px_40px_rgba(255,255,255,0.35)] transition-all duration-100 ease-out"
               >
                 <Play className="w-4 h-4 fill-current" />
                 <span>{isDrawing ? "Selecting Lucky Winner..." : "Reveal Winner"}</span>

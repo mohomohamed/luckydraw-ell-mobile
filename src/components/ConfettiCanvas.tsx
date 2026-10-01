@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useRef } from "react";
-import confetti from "canvas-confetti";
 
 interface ConfettiCanvasProps {
   active: boolean;
@@ -24,17 +23,17 @@ class Flake {
     this.x = x;
     this.y = y;
     const angle = Math.random() * Math.PI * 2;
-    const speed = Math.random() * 8.5 + 3.5;
+    const speed = Math.random() * 9 + 4;
     this.vx = Math.cos(angle) * speed;
-    this.vy = Math.sin(angle) * speed - 2.8;
-    this.size = Math.random() * 4.5 + 2;
+    this.vy = Math.sin(angle) * speed - 3.2;
+    this.size = Math.random() * 5 + 2.5;
     this.life = 1;
-    this.decay = Math.random() * 0.008 + 0.006;
-    this.gravity = 0.13;
+    this.decay = Math.random() * 0.007 + 0.005;
+    this.gravity = 0.14;
     this.friction = 0.985;
-    this.isGold = Math.random() > 0.45;
+    this.isGold = Math.random() > 0.4;
     this.rotation = Math.random() * Math.PI;
-    this.rotSpeed = (Math.random() - 0.5) * 0.12;
+    this.rotSpeed = (Math.random() - 0.5) * 0.14;
   }
 
   update() {
@@ -72,14 +71,6 @@ export default function ConfettiCanvas({ active }: ConfettiCanvasProps) {
   useEffect(() => {
     if (!active) return;
 
-    // Trigger canvas-confetti blast with gold & titanium colors
-    confetti({
-      particleCount: 80,
-      spread: 100,
-      origin: { y: 0.6 },
-      colors: ["#e5c158", "#e2e4e1", "#c5a98e", "#ffffff"],
-    });
-
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -92,11 +83,11 @@ export default function ConfettiCanvas({ active }: ConfettiCanvasProps) {
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
 
-    for (let i = 0; i < 140; i++) {
+    for (let i = 0; i < 160; i++) {
       particles.push(
         new Flake(
-          centerX + (Math.random() - 0.5) * 80,
-          centerY + (Math.random() - 0.5) * 60
+          centerX + (Math.random() - 0.5) * 90,
+          centerY + (Math.random() - 0.5) * 70
         )
       );
     }
